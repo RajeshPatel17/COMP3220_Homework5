@@ -20,7 +20,7 @@
  (lambda (env var val)
    (list 'extend-env var val env)))
 
-;; apply-env : environment, variable -> value
+;; apply-env : evironment, variable -> value
 (define apply-env
  (lambda(env search-var)
    (cond
@@ -66,13 +66,58 @@
       ((integer? e) e)
       ((symbol? e) (apply-env myEnv e ))
       ((eqv? (car e) '+) (+ (exp myEnv (cadr e))(exp myEnv (caddr e))))
-      ((eqv? (car e) '-) (- (exp myEnv (cadr e))(exp myEnv (caddr e))))
-      ((eqv? (car e) '/) (/ (exp myEnv (cadr e))(exp myEnv (caddr e))))
-      ((eqv? (car e) '*) (* (exp myEnv (cadr e))(exp myEnv (caddr e))))
       (else (display "I saw something I didn't understand")))))
-
-
 
 ;;; DON'T TOUCH THE LINE BELOW THIS ONE IF YOU WANT TO RECEIVE A GRADE! ;;;
 (provide interpreter)
 ;;; DON'T TOUCH THE LINE ABOVE THIS ONE IF YOU WANT TO RECEIVE A GRADE! ;;;
+
+;;; Sample testing programs below ;;;
+;;; Actual tests NOT guaranteed match the tests below ;;;
+
+; aprog tests simple print statement
+; text file: print 1 + 2
+(define aprog
+  '( program ( print ( + 1 2 ) ) )) ; should print 3
+
+; bprog tests input3.txt (should get error message - no dog variable)
+(define bprog
+  ' ( program ( = x ( * ( + 2 3 ) dog ) ) ))
+
+; cprog tests input2.txt
+(define cprog
+  '( program
+     ( = x 3 )
+     ( = y 5 )
+     ( = z ( / ( + x y ) 3 ) )
+     ( print z ) )) ; should print 8/3
+
+; dprog tests input1.txt
+(define dprog
+ '( program ( = dog 1 )
+            ( = x ( / ( + 2 3 ) 4 ) )
+            ( = y ( / dog ( + x 3 ) ) )
+            ( print ( + x y ) ) )) ; should print 101/68
+
+; eprog tests input4.txt
+(define eprog
+  ' ( program ( print ( - ( - ( - 1 2 ) 3 ) 4 ) )            ; should print -8
+              ( print ( / ( * ( / ( * 1 2 ) 3 ) 4 ) 5 ) ) )) ; should print 8/15
+
+; fprog is a list representation of a TINY program that can evaluate boolean expressions
+(define fprog
+  '(program
+    (= x (+ 2 (/ 8 3)))
+    (print (< x 111))   ; should print #t (for true)
+    (print (and #t #f)) ; should print #f (for false)
+    (print x)))         ; should print 14/3
+
+; gprog is a list representation of a TINY program that can handle while loops (statements)
+(define gprog
+  '(program
+    (= x 10)
+    (while (> x 0) ((print x)(= x (- x 1)))))) ; should print numbers 10 - 1 on separate lines
+
+  
+; How to call the interpreter for [x]prog
+(interpreter aprog)
